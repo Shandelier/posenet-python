@@ -3,14 +3,18 @@ import posenet
 
 
 class PoseNet:
-
-    def __init__(self, model: BaseModel, min_score=0.25):
+    def __init__(self, model: BaseModel, min_score=0.15):
         self.model = model
         self.min_score = min_score
 
     def estimate_multiple_poses(self, image, max_pose_detections=10):
-        heatmap_result, offsets_result, displacement_fwd_result, displacement_bwd_result, image_scale = \
-            self.model.predict(image)
+        (
+            heatmap_result,
+            offsets_result,
+            displacement_fwd_result,
+            displacement_bwd_result,
+            image_scale,
+        ) = self.model.predict(image)
 
         pose_scores, keypoint_scores, keypoint_coords = posenet.decode_multiple_poses(
             heatmap_result.numpy().squeeze(axis=0),
@@ -19,7 +23,8 @@ class PoseNet:
             displacement_bwd_result.numpy().squeeze(axis=0),
             output_stride=self.model.output_stride,
             max_pose_detections=max_pose_detections,
-            min_pose_score=self.min_score)
+            min_pose_score=self.min_score,
+        )
 
         keypoint_coords *= image_scale
 
@@ -30,8 +35,13 @@ class PoseNet:
 
     def draw_poses(self, image, pose_scores, keypoint_scores, keypoint_coords):
         draw_image = posenet.draw_skel_and_kp(
-            image, pose_scores, keypoint_scores, keypoint_coords,
-            min_pose_score=self.min_score, min_part_score=self.min_score)
+            image,
+            pose_scores,
+            keypoint_scores,
+            keypoint_coords,
+            min_pose_score=self.min_score,
+            min_part_score=self.min_score,
+        )
 
         return draw_image
 
@@ -39,8 +49,13 @@ class PoseNet:
         print()
         print("Results for image: %s" % image_name)
         for pi in range(len(pose_scores)):
-            if pose_scores[pi] == 0.:
+            if pose_scores[pi] == 0.0:
                 break
-            print('Pose #%d, score = %f' % (pi, pose_scores[pi]))
-            for ki, (s, c) in enumerate(zip(keypoint_scores[pi, :], keypoint_coords[pi, :, :])):
-                print('Keypoint %s, score = %f, coord = %s' % (posenet.PART_NAMES[ki], s, c))
+            print("Pose #%d, score = %f" % (pi, pose_scores[pi]))
+            for ki, (s, c) in enumerate(
+                zip(keypoint_scores[pi, :], keypoint_coords[pi, :, :])
+            ):
+                print(
+                    "Keypoint %s, score = %f, coord = %s"
+                    % (posenet.PART_NAMES[ki], s, c)
+                )
