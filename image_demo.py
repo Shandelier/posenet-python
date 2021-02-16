@@ -14,7 +14,7 @@ parser.add_argument(
 )  # 8, 16, 32 (max 16 for mobilenet)
 parser.add_argument("--quant_bytes", type=int, default=4)  # 4 = float
 parser.add_argument("--multiplier", type=float, default=1.0)  # only for mobilenet
-parser.add_argument("--notxt", action="store_true")
+# parser.add_argument("--notxt", action="store_true")
 parser.add_argument("--image_dir", type=str, default="./images")
 parser.add_argument("--output_dir", type=str, default="./output")
 parser.add_argument("--pose", type=int, default=0)  # 0-straight, 1-slouche
