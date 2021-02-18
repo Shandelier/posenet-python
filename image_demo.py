@@ -6,6 +6,7 @@ import os
 import numpy as np
 import save_utils as su
 from posenet.posenet_factory import load_model
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="mobilenet")  # mobilenet resnet50
@@ -61,7 +62,9 @@ def main():
     np.savetxt(csv_file, su.csv_column_names, delimiter=",", fmt="%s")
 
     start = time.time()
-    for f in filenames:
+    for _, f in enumerate(
+        tqdm(filenames, desc="PIC", ascii=True, position=0, leave=True)
+    ):
         img = cv2.imread(f)
         pose_scores, keypoint_scores, keypoint_coords = posenet.estimate_multiple_poses(
             img
